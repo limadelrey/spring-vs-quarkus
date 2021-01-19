@@ -1,0 +1,28 @@
+version: '3.5'
+
+services:
+  books-db:
+    container_name: book-store-db
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_DB: books
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  books-app:
+    container_name: book-store-app
+    image: spring/book-store
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - books-db
+
+networks:
+  default:
+    external:
+      name: book-store-network

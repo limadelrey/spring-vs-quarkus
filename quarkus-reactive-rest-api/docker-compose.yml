@@ -1,0 +1,48 @@
+version: '3.5'
+
+services:
+  books-db:
+    container_name: book-store-db
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_DB: books
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  books-migrations:
+    container_name: book-store-migrations
+    image: flyway/flyway:6.1.4
+    command: -url=jdbc:postgresql://book-store-db/books -user=postgres -password=postgres -connectRetries=60 migrate
+    volumes:
+      - .:/flyway/sql
+    depends_on:
+      - books-db
+
+  books-app:
+    container_name: book-store-app
+    image: quarkus/book-reactive-store
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+      - "8080:8080"
+    depends_on:
+      - books-db
+      - books-migrations
+
+  books-metrics:
+    container_name: book-store-metrics
+    image: prom/prometheus:v2.15.2
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - books-app
+
+networks:
+  default:
+    external:
+      name: book-store-network
