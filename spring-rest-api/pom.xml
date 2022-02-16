@@ -8,7 +8,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <postgresql.version>42.2.8</postgresql.version>
+        <postgresql.version>42.3.3</postgresql.version>
         <lombok.version>1.18.10</lombok.version>
 
         <maven.compiler.source>11</maven.compiler.source>
